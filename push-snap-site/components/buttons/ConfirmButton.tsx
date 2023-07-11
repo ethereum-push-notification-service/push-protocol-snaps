@@ -12,7 +12,7 @@ export default function ConfirmButton() {
       method: "wallet_invokeSnap",
       params: {
         snapId: defaultSnapOrigin,
-        request: { method: 'hello', params: { address: address } },
+        request: { method: 'pushproto_addaddress', params: { address: address } },
       },
     });
   };

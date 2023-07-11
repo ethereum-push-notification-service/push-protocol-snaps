@@ -7,7 +7,7 @@ export default function ReconnectButton() {
       method: "wallet_invokeSnap",
       params: {
         snapId: defaultSnapOrigin,
-        request: { method: 'togglepopup' },
+        request: { method: 'pushproto_togglepopup' },
       },
     });
   };

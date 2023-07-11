@@ -23,7 +23,7 @@ export default function ReconnectButton() {
       method: "wallet_invokeSnap",
       params: {
         snapId: defaultSnapOrigin,
-        request: { method: 'init' },
+        request: { method: 'pushproto_welcome' },
       },
     });
 

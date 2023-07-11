@@ -1,12 +1,12 @@
 {
   "name": "push-v1",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Get Push Notifications directly in your MetaMask wallet!",
   "repository": {
     "type": "git",
     "url": "https://github.com/ethereum-push-notification-service/push-protocol-snaps"
   },
-  "license": "(MIT-0 OR Apache-2.0)",
+  "license": "GNU General Public License v2.0",
   "main": "src/index.ts",
   "files": [
     "dist/",

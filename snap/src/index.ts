@@ -13,44 +13,62 @@ export const onRpcRequest: OnRpcRequestHandler = async ({
   origin,
   request,
 }) => {
-  switch (request.method) {
-    case "hello": {
-      await addAddress(request.params.address || "0x0");
-      await confirmAddress();
-      break;
-    }
-    case "init": {
-      await snap.request({
-        method: "snap_dialog",
-        params: {
-          type: "alert",
-          content: panel([
-            heading("Welcome to Push Notification Snap!"),
-            divider(),
-            text("🔔 Start getting notifications by opting into channels"),
-          ]),
-        },
-      });
-      return true;
-    }
-    case "togglepopup": {
+  if (
+    origin === "https://app.push.org" ||
+    origin === "https://staging.push.org" ||
+    origin === "https://dev.push.org" ||
+    origin === "http://localhost:3000"
+  ) {
+    switch (request.method) {
+      case "pushproto_addaddress": {
+        await addAddress(request.params.address);
+        await confirmAddress();
+        break;
+      }
+      case "pushproto_welcome": {
+        await snap.request({
+          method: "snap_dialog",
+          params: {
+            type: "alert",
+            content: panel([
+              heading("Welcome to Push Notification Snap!"),
+              divider(),
+              text("🔔 Start getting notifications by opting into channels"),
+            ]),
+          },
+        });
+        return true;
+      }
+      case "pushproto_togglepopup": {
+        popupToggle(0);
 
-      popupToggle(0);
-
-      await snap.request({
-        method: "snap_dialog",
-        params: {
-          type: "alert",
-          content: panel([
-            heading("Notification Snooze Off"),
-            text("You will be receiving popup notifications now"),
-          ]),
-        },
-      });
-      break;
+        await snap.request({
+          method: "snap_dialog",
+          params: {
+            type: "alert",
+            content: panel([
+              heading("Notification Snooze Off"),
+              text("You will be receiving popup notifications now"),
+            ]),
+          },
+        });
+        break;
+      }
+      default:
+        throw new Error("Method not found.");
     }
-    default:
-      throw new Error("Method not found.");
+  } else {
+    await snap.request({
+      method: "snap_dialog",
+      params: {
+        type: "alert",
+        content: panel([
+          heading("Error"),
+          text("This dapp is not supported by Push Notification Snap"),
+        ]),
+      },
+    });
+    return true;
   }
 };
 
@@ -59,18 +77,21 @@ export const onCronjob: OnCronjobHandler = async ({ request }) => {
     case "fireCronjob": {
       const notifs = await fetchAllAddrNotifs();
       let msgs = popupHelper(notifs);
-      
+
       let persistedData = await snap.request({
         method: "snap_manageState",
         params: { operation: "get" },
       });
+      
+      let popuptoggle = msgs.length;
+      if (persistedData != null) {
+        popuptoggle += Number(persistedData.popuptoggle);
+      }
 
-      let popuptoggle = Number(persistedData.popuptoggle) + msgs.length;
-
-      const data ={
+      const data = {
         addresses: persistedData.addresses,
         popuptoggle: popuptoggle,
-      }
+      };
 
       await snap.request({
         method: "snap_manageState",
@@ -91,18 +112,20 @@ export const onCronjob: OnCronjobHandler = async ({ request }) => {
             },
           });
         }
-      }else{
+      } else {
         await snap.request({
           method: "snap_dialog",
-            params: {
-              type: "alert",
-              content: panel([
-                heading("Notification snooze"),
-                divider(),
-                text(`You've been receiving too many notifications. \n The pop-up notifications are now snoozed `),
-                text(`You can turn them back on from the dapp`)
-              ]),
-            },
+          params: {
+            type: "alert",
+            content: panel([
+              heading("Notification snooze"),
+              divider(),
+              text(
+                `You've been receiving too many notifications. \n The pop-up notifications are now snoozed `
+              ),
+              text(`You can turn them back on from the dapp`),
+            ]),
+          },
         });
       }
 

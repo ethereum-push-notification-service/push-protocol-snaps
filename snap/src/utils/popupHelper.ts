@@ -1,7 +1,6 @@
-import { heading, panel, text } from "@metamask/snaps-ui";
 
 export const popupHelper = (notifs: String[]) => {
-  let msg = [];
+  let msg = [] as String[];
   if (notifs.length > 0) {
     notifs.forEach((notif) => {
       let str = `\n🔔` + notif + "\n";

@@ -1,4 +1,4 @@
-export const popupToggle= async (notifcount:Number) => {
+export const popupToggle= async (notifcount:number) => {
     let persistedData = await snap.request({
         method: 'snap_manageState',
         params: { operation: 'get' },
